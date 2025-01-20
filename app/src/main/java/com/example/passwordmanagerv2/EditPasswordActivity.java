@@ -2,17 +2,21 @@ package com.example.passwordmanagerv2;
 
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import com.example.passwordmanagerv2.data.entity.SavedPassword;
+import com.example.passwordmanagerv2.view.PasswordStrengthIndicator;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 
 public class EditPasswordActivity extends AppCompatActivity {
     private TextInputEditText siteInput, usernameInput, passwordInput;
     private DatabaseHelper dbHelper;
+    private PasswordStrengthIndicator strengthIndicator;
     private int passwordId;
     private SavedPassword currentPassword;
 
@@ -36,10 +40,27 @@ public class EditPasswordActivity extends AppCompatActivity {
         siteInput = findViewById(R.id.siteInput);
         usernameInput = findViewById(R.id.usernameInput);
         passwordInput = findViewById(R.id.passwordInput);
+        strengthIndicator = findViewById(R.id.passwordStrengthIndicator);
         dbHelper = new DatabaseHelper(this);
 
         MaterialButton saveButton = findViewById(R.id.saveButton);
         saveButton.setOnClickListener(v -> saveChanges());
+
+        // Monitor pentru schimbările în parola editată
+        passwordInput.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {}
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                if (s != null) {
+                    strengthIndicator.updateStrength(s.toString());
+                }
+            }
+        });
     }
 
     private void setupToolbar() {
@@ -60,7 +81,11 @@ public class EditPasswordActivity extends AppCompatActivity {
         String username = usernameInput.getText().toString().trim();
         String password = passwordInput.getText().toString().trim();
 
-        if (validateInputs(site, username, password)) {
+        if (!validateInputs(site, username, password)) {
+            return;
+        }
+
+        if (currentPassword != null) {
             currentPassword.siteName = site;
             currentPassword.username = username;
             new SaveChangesTask().execute(password);
@@ -95,7 +120,9 @@ public class EditPasswordActivity extends AppCompatActivity {
                 currentPassword = password;
                 siteInput.setText(password.siteName);
                 usernameInput.setText(password.username);
-                passwordInput.setText(dbHelper.decryptPassword(password.encryptedPassword));
+                String decryptedPassword = dbHelper.decryptPassword(password.encryptedPassword);
+                passwordInput.setText(decryptedPassword);
+                strengthIndicator.updateStrength(decryptedPassword);
             }
         }
     }
@@ -103,8 +130,7 @@ public class EditPasswordActivity extends AppCompatActivity {
     private class SaveChangesTask extends AsyncTask<String, Void, Boolean> {
         @Override
         protected Boolean doInBackground(String... params) {
-            String newPassword = params[0];
-            return dbHelper.updatePassword(currentPassword, newPassword);
+            return dbHelper.updatePassword(currentPassword, params[0]);
         }
 
         @Override

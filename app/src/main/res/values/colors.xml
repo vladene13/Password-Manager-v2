@@ -10,4 +10,8 @@
     <color name="secondary_darker">#016F6F</color>
     <color name="background">#FAFAFA</color>
     <color name="background_dark">#121212</color>
+    <color name="password_weak">#F44336</color>
+    <color name="password_medium">#FFC107</color>
+    <color name="password_strong">#4CAF50</color>
+
 </resources>

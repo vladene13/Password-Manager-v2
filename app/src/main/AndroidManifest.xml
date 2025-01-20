@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Permisiuni necesare -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.USE_BIOMETRIC" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="28"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:maxSdkVersion="28"/>
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.PasswordManagerv2">
+
+        <!-- MainActivity - Entry point -->
+        <activity
+            android:name=".MainActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- Alte activități -->
+        <activity
+            android:name=".LoginActivity"
+            android:label="@string/login"
+            android:parentActivityName=".MainActivity" />
+
+        <activity
+            android:name=".RegisterActivity"
+            android:label="@string/register"
+            android:parentActivityName=".MainActivity" />
+
+        <activity
+            android:name=".PinActivity"
+            android:label="@string/enter_pin"
+            android:parentActivityName=".MainActivity" />
+
+        <activity
+            android:name=".HomeActivity"
+            android:label="@string/home" />
+
+        <activity
+            android:name=".AddPasswordActivity"
+            android:label="@string/add_password"
+            android:parentActivityName=".HomeActivity" />
+
+        <activity
+            android:name=".SettingsActivity"
+            android:label="@string/settings"
+            android:parentActivityName=".HomeActivity" />
+
+        <activity
+            android:name=".EditPasswordActivity"
+            android:label="@string/edit_password"
+            android:parentActivityName=".HomeActivity" />
+
+        <activity
+            android:name=".PasswordListActivity"
+            android:label="@string/saved_passwords"
+            android:parentActivityName=".HomeActivity" />
+
+    </application>
+</manifest>

@@ -18,13 +18,17 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.passwordmanagerv2.data.entity.SavedPassword;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 public class PasswordAdapter extends RecyclerView.Adapter<PasswordAdapter.PasswordViewHolder> {
     private List<SavedPassword> passwords = new ArrayList<>();
     private final Context context;
     private final DatabaseHelper dbHelper;
+    private static final SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
 
     public PasswordAdapter(Context context) {
         this.context = context;
@@ -59,6 +63,7 @@ public class PasswordAdapter extends RecyclerView.Adapter<PasswordAdapter.Passwo
         private final TextView siteNameText;
         private final TextView usernameText;
         private final TextView passwordText;
+        private final TextView lastUpdateText;
         private final ImageButton copyButton;
         private final ImageButton editButton;
         private final ImageButton deleteButton;
@@ -69,6 +74,7 @@ public class PasswordAdapter extends RecyclerView.Adapter<PasswordAdapter.Passwo
             siteNameText = itemView.findViewById(R.id.siteNameText);
             usernameText = itemView.findViewById(R.id.usernameText);
             passwordText = itemView.findViewById(R.id.passwordText);
+            lastUpdateText = itemView.findViewById(R.id.lastUpdateText);
             copyButton = itemView.findViewById(R.id.copyButton);
             editButton = itemView.findViewById(R.id.editButton);
             deleteButton = itemView.findViewById(R.id.deleteButton);
@@ -103,6 +109,18 @@ public class PasswordAdapter extends RecyclerView.Adapter<PasswordAdapter.Passwo
             siteNameText.setText(password.siteName);
             usernameText.setText(password.username);
             setPasswordVisibility(false);
+
+            // Formatare și afișare dată
+            String lastUpdate = dateFormat.format(new Date(password.updatedAt));
+            lastUpdateText.setText("Ultima actualizare: " + lastUpdate);
+
+            // Verifică dacă parola este mai veche de 6 luni
+            long sixMonthsInMillis = 180L * 24 * 60 * 60 * 1000;
+            if (System.currentTimeMillis() - password.updatedAt >= sixMonthsInMillis) {
+                lastUpdateText.setTextColor(context.getResources().getColor(android.R.color.holo_red_dark));
+            } else {
+                lastUpdateText.setTextColor(context.getResources().getColor(android.R.color.darker_gray));
+            }
         }
 
         private void togglePasswordVisibility() {

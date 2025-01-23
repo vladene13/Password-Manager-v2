@@ -85,33 +85,36 @@ public class DatabaseHelper {
         }
     }
 
-    // Metode pentru gestiunea utilizatorilor
     public boolean registerUser(String email, String firstName, String lastName, String password, String pin) {
         try {
-            // Verificăm dacă există deja un utilizator cu acest email
             if (db.userDao().findByEmail(email) != null) {
                 return false;
             }
 
-            // Creăm hash-uri pentru parolă și PIN
             String passwordHash = BCrypt.hashpw(password, BCrypt.gensalt());
             String pinHash = BCrypt.hashpw(pin, BCrypt.gensalt());
 
-            // Creăm și salvăm utilizatorul nou
             User user = new User(email, firstName, lastName, passwordHash, pinHash);
             long userId = db.userDao().insert(user);
 
-            return userId > 0;
+            if (userId > 0) {
+                preferences.edit()
+                        .putInt(CURRENT_USER_ID, (int)userId)
+                        .putString(CURRENT_USER_EMAIL, email)
+                        .apply();
+                return true;
+            }
+            return false;
         } catch (Exception e) {
             e.printStackTrace();
             return false;
         }
     }
+
     public boolean loginUser(String email, String password) {
         try {
             User user = db.userDao().findByEmail(email);
             if (user != null && BCrypt.checkpw(password, user.passwordHash)) {
-                // La login reușit, setăm informațiile de sesiune
                 preferences.edit()
                         .putInt(CURRENT_USER_ID, user.id)
                         .putString(CURRENT_USER_EMAIL, email)
@@ -125,6 +128,7 @@ public class DatabaseHelper {
             return false;
         }
     }
+
     public boolean verifyPin(String pin) {
         try {
             int userId = getCurrentUserId();
@@ -155,7 +159,6 @@ public class DatabaseHelper {
         }
     }
 
-    // Metode pentru gestiunea parolelor
     public boolean savePassword(String siteName, String username, String password) {
         try {
             String encryptedPassword = encryptPassword(password);
@@ -175,7 +178,25 @@ public class DatabaseHelper {
 
     public List<SavedPassword> getSavedPasswords() {
         try {
-            return db.passwordDao().getAllForUser(getCurrentUserId());
+            return db.passwordDao().getActivePasswords(getCurrentUserId());
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public List<SavedPassword> getActivePasswords() {
+        try {
+            return db.passwordDao().getActivePasswords(getCurrentUserId());
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public List<SavedPassword> getArchivedPasswords() {
+        try {
+            return db.passwordDao().getArchivedPasswords(getCurrentUserId());
         } catch (Exception e) {
             e.printStackTrace();
             return null;
@@ -203,6 +224,22 @@ public class DatabaseHelper {
         }
     }
 
+    public boolean archivePassword(int passwordId) {
+        try {
+            SavedPassword password = db.passwordDao().findById(passwordId);
+            if (password != null) {
+                password.isArchived = true;
+                password.updatedAt = System.currentTimeMillis();
+                db.passwordDao().update(password);
+                return true;
+            }
+            return false;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
     public boolean deletePassword(int passwordId) {
         try {
             db.passwordDao().deleteById(passwordId);
@@ -213,7 +250,6 @@ public class DatabaseHelper {
         }
     }
 
-    // Metode pentru criptare/decriptare
     private String encryptPassword(String password) throws Exception {
         Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
         cipher.init(Cipher.ENCRYPT_MODE, encryptionKey);
@@ -231,7 +267,7 @@ public class DatabaseHelper {
         try {
             byte[] decoded = Base64.decode(encryptedPassword, Base64.NO_WRAP);
 
-            byte[] iv = new byte[12]; // GCM folosește un IV de 12 bytes
+            byte[] iv = new byte[12];
             byte[] encrypted = new byte[decoded.length - 12];
             System.arraycopy(decoded, 0, iv, 0, 12);
             System.arraycopy(decoded, 12, encrypted, 0, encrypted.length);
@@ -247,24 +283,13 @@ public class DatabaseHelper {
         }
     }
 
-    // Metode pentru gestiunea sesiunii
     public void logout() {
-        try {
-            // Ștergem doar informațiile de sesiune din SharedPreferences
-            preferences.edit()
-                    .remove(CURRENT_USER_ID)
-                    .remove(CURRENT_USER_EMAIL)
-                    .putBoolean(IS_LOGGED_IN, false)
-                    .apply();
-
-            // Resetăm cheia de criptare
-            encryptionKey = null;
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        preferences.edit()
+                .remove(CURRENT_USER_ID)
+                .remove(CURRENT_USER_EMAIL)
+                .putBoolean(IS_LOGGED_IN, false)
+                .apply();
     }
-
 
     public boolean isLoggedIn() {
         return preferences.getBoolean(IS_LOGGED_IN, false);
@@ -291,27 +316,10 @@ public class DatabaseHelper {
         }
     }
 
-    // Metode utilitare
-    public boolean changePassword(String currentPassword, String newPassword) {
-        try {
-            User user = getCurrentUser();
-            if (user != null && BCrypt.checkpw(currentPassword, user.passwordHash)) {
-                String newPasswordHash = BCrypt.hashpw(newPassword, BCrypt.gensalt());
-                db.userDao().updatePassword(user.id, newPasswordHash);
-                return true;
-            }
-            return false;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
-
     public void clearAllData() {
         try {
             db.clearAllTables();
             preferences.edit().clear().apply();
-            encryptionKey = null;
         } catch (Exception e) {
             e.printStackTrace();
         }

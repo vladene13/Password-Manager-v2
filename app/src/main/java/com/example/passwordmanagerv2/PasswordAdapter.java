@@ -28,11 +28,17 @@ public class PasswordAdapter extends RecyclerView.Adapter<PasswordAdapter.Passwo
     private List<SavedPassword> passwords = new ArrayList<>();
     private final Context context;
     private final DatabaseHelper dbHelper;
+    private final boolean isArchiveMode;
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
 
     public PasswordAdapter(Context context) {
+        this(context, false);
+    }
+
+    public PasswordAdapter(Context context, boolean isArchiveMode) {
         this.context = context;
         this.dbHelper = new DatabaseHelper(context);
+        this.isArchiveMode = isArchiveMode;
     }
 
     @NonNull
@@ -79,6 +85,14 @@ public class PasswordAdapter extends RecyclerView.Adapter<PasswordAdapter.Passwo
             editButton = itemView.findViewById(R.id.editButton);
             deleteButton = itemView.findViewById(R.id.deleteButton);
 
+            if (isArchiveMode) {
+                editButton.setVisibility(View.GONE);
+                deleteButton.setImageResource(android.R.drawable.ic_menu_delete);
+            } else {
+                editButton.setVisibility(View.VISIBLE);
+                deleteButton.setImageResource(R.drawable.ic_history);
+            }
+
             setupButtonListeners();
         }
 
@@ -88,38 +102,51 @@ public class PasswordAdapter extends RecyclerView.Adapter<PasswordAdapter.Passwo
             copyButton.setOnClickListener(v -> copyPassword());
 
             editButton.setOnClickListener(v -> {
-                int position = getAdapterPosition();
-                if (position != RecyclerView.NO_POSITION) {
-                    SavedPassword password = passwords.get(position);
-                    Intent intent = new Intent(context, EditPasswordActivity.class);
-                    intent.putExtra("PASSWORD_ID", password.id);
-                    context.startActivity(intent);
+                if (!isArchiveMode) {
+                    int position = getAdapterPosition();
+                    if (position != RecyclerView.NO_POSITION) {
+                        SavedPassword password = passwords.get(position);
+                        Intent intent = new Intent(context, EditPasswordActivity.class);
+                        intent.putExtra("PASSWORD_ID", password.id);
+                        context.startActivity(intent);
+                    }
                 }
             });
 
             deleteButton.setOnClickListener(v -> {
                 int position = getAdapterPosition();
                 if (position != RecyclerView.NO_POSITION) {
-                    showDeleteConfirmationDialog(passwords.get(position));
+                    SavedPassword password = passwords.get(position);
+                    if (isArchiveMode) {
+                        showDeletePermanentlyDialog(password);
+                    } else {
+                        showArchiveDialog(password);
+                    }
                 }
             });
         }
 
         void bind(SavedPassword password) {
-            siteNameText.setText(password.siteName);
-            usernameText.setText(password.username);
+            siteNameText.setText(password.getSiteName());
+            usernameText.setText(password.getUsername());
             setPasswordVisibility(false);
 
-            // Formatare și afișare dată
-            String lastUpdate = dateFormat.format(new Date(password.updatedAt));
+            String lastUpdate = dateFormat.format(new Date(password.getUpdatedAt()));
             lastUpdateText.setText("Ultima actualizare: " + lastUpdate);
 
-            // Verifică dacă parola este mai veche de 6 luni
-            long sixMonthsInMillis = 180L * 24 * 60 * 60 * 1000;
-            if (System.currentTimeMillis() - password.updatedAt >= sixMonthsInMillis) {
+            if (isPasswordOld(password)) {
                 lastUpdateText.setTextColor(context.getResources().getColor(android.R.color.holo_red_dark));
             } else {
                 lastUpdateText.setTextColor(context.getResources().getColor(android.R.color.darker_gray));
+            }
+            if (isArchiveMode) {
+                editButton.setVisibility(View.GONE);
+                deleteButton.setImageResource(android.R.drawable.ic_menu_delete);
+                deleteButton.setColorFilter(context.getResources().getColor(android.R.color.holo_red_dark));
+            } else {
+                editButton.setVisibility(View.VISIBLE);
+                deleteButton.setImageResource(R.drawable.ic_history);
+                deleteButton.setColorFilter(context.getResources().getColor(android.R.color.holo_red_dark));
             }
         }
 
@@ -130,14 +157,17 @@ public class PasswordAdapter extends RecyclerView.Adapter<PasswordAdapter.Passwo
         private void setPasswordVisibility(boolean visible) {
             isPasswordVisible = visible;
             SavedPassword password = passwords.get(getAdapterPosition());
-            passwordText.setText(isPasswordVisible ?
-                    dbHelper.decryptPassword(password.encryptedPassword) :
-                    "••••••••");
+            if (isPasswordVisible) {
+                String decryptedPassword = dbHelper.decryptPassword(password.getEncryptedPassword());
+                passwordText.setText(decryptedPassword);
+            } else {
+                passwordText.setText("••••••••");
+            }
         }
 
         private void copyPassword() {
             SavedPassword password = passwords.get(getAdapterPosition());
-            String decryptedPassword = dbHelper.decryptPassword(password.encryptedPassword);
+            String decryptedPassword = dbHelper.decryptPassword(password.getEncryptedPassword());
 
             ClipboardManager clipboard = (ClipboardManager)
                     context.getSystemService(Context.CLIPBOARD_SERVICE);
@@ -147,39 +177,69 @@ public class PasswordAdapter extends RecyclerView.Adapter<PasswordAdapter.Passwo
             Toast.makeText(context, "Parola a fost copiată", Toast.LENGTH_SHORT).show();
         }
 
-        private void showDeleteConfirmationDialog(SavedPassword password) {
+        private void showArchiveDialog(SavedPassword password) {
             new AlertDialog.Builder(context)
-                    .setTitle("Confirmare ștergere")
-                    .setMessage("Sigur doriți să ștergeți această parolă?")
-                    .setPositiveButton("Da", (dialog, which) -> new DeletePasswordTask(password).execute())
+                    .setTitle("Arhivare parolă")
+                    .setMessage("Sigur doriți să arhivați această parolă?")
+                    .setPositiveButton("Da", (dialog, which) -> archivePassword(password))
                     .setNegativeButton("Nu", null)
                     .show();
         }
 
-        private class DeletePasswordTask extends AsyncTask<Void, Void, Boolean> {
-            private final SavedPassword password;
-            private final int position;
+        private void showDeletePermanentlyDialog(SavedPassword password) {
+            new AlertDialog.Builder(context)
+                    .setTitle("Ștergere definitivă")
+                    .setMessage("Sigur doriți să ștergeți definitiv această parolă? Această acțiune nu poate fi anulată.")
+                    .setPositiveButton("Șterge definitiv", (dialog, which) -> deletePasswordPermanently(password))
+                    .setNegativeButton("Anulează", null)
+                    .show();
+        }
 
-            DeletePasswordTask(SavedPassword password) {
-                this.password = password;
-                this.position = getAdapterPosition();
-            }
-
-            @Override
-            protected Boolean doInBackground(Void... voids) {
-                return dbHelper.deletePassword(password.id);
-            }
-
-            @Override
-            protected void onPostExecute(Boolean success) {
-                if (success) {
-                    passwords.remove(position);
-                    notifyItemRemoved(position);
-                    Toast.makeText(context, "Parola a fost ștearsă", Toast.LENGTH_SHORT).show();
-                } else {
-                    Toast.makeText(context, "Eroare la ștergerea parolei", Toast.LENGTH_SHORT).show();
+        private void archivePassword(SavedPassword password) {
+            new AsyncTask<Void, Void, Boolean>() {
+                @Override
+                protected Boolean doInBackground(Void... voids) {
+                    return dbHelper.archivePassword(password.id);
                 }
-            }
+
+                @Override
+                protected void onPostExecute(Boolean success) {
+                    if (success) {
+                        int position = passwords.indexOf(password);
+                        passwords.remove(position);
+                        notifyItemRemoved(position);
+                        Toast.makeText(context, "Parola a fost arhivată", Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(context, "Eroare la arhivarea parolei", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            }.execute();
+        }
+
+        private void deletePasswordPermanently(SavedPassword password) {
+            new AsyncTask<Void, Void, Boolean>() {
+                @Override
+                protected Boolean doInBackground(Void... voids) {
+                    return dbHelper.deletePassword(password.id);
+                }
+
+                @Override
+                protected void onPostExecute(Boolean success) {
+                    if (success) {
+                        int position = passwords.indexOf(password);
+                        passwords.remove(position);
+                        notifyItemRemoved(position);
+                        Toast.makeText(context, "Parola a fost ștearsă definitiv", Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(context, "Eroare la ștergerea parolei", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            }.execute();
+        }
+
+        private boolean isPasswordOld(SavedPassword password) {
+            long sixMonthsInMillis = 180L * 24 * 60 * 60 * 1000;
+            return System.currentTimeMillis() - password.getUpdatedAt() > sixMonthsInMillis;
         }
     }
 }

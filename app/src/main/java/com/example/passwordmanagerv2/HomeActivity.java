@@ -5,16 +5,22 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
+import com.example.passwordmanagerv2.data.AppDatabase;
 import com.example.passwordmanagerv2.data.entity.User;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 public class HomeActivity extends AppCompatActivity {
-    private DatabaseHelper dbHelper;
+    private TextView welcomeText;
     private TextView userNameText;
+    private MaterialButton viewPasswordsButton;
+    private DatabaseHelper dbHelper;
+    private FloatingActionButton historyButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,19 +39,26 @@ public class HomeActivity extends AppCompatActivity {
         if (getSupportActionBar() != null) {
             getSupportActionBar().setTitle("");
         }
-        toolbar.setPopupTheme(R.style.PopupMenu);
     }
 
     private void initializeViews() {
         dbHelper = new DatabaseHelper(this);
+        welcomeText = findViewById(R.id.welcomeText);
         userNameText = findViewById(R.id.userNameText);
+        viewPasswordsButton = findViewById(R.id.viewPasswordsButton);
+        historyButton = findViewById(R.id.historyButton);
     }
 
     private void setupListeners() {
-        MaterialButton viewPasswordsButton = findViewById(R.id.viewPasswordsButton);
-        viewPasswordsButton.setOnClickListener(v -> {
-            startActivity(new Intent(this, PasswordListActivity.class));
-        });
+        if (historyButton != null) {
+            historyButton.setOnClickListener(v ->
+                    startActivity(new Intent(this, PasswordHistoryActivity.class)));
+        }
+
+        if (viewPasswordsButton != null) {
+            viewPasswordsButton.setOnClickListener(v ->
+                    startActivity(new Intent(this, PasswordListActivity.class)));
+        }
     }
 
     private void loadUserData() {
@@ -57,8 +70,8 @@ public class HomeActivity extends AppCompatActivity {
 
             @Override
             protected void onPostExecute(User user) {
-                if (user != null) {
-                    userNameText.setText(user.lastName); // Folosim lastName în loc de firstName
+                if (user != null && userNameText != null) {
+                    userNameText.setText(user.lastName);
                 }
             }
         }.execute();
@@ -85,27 +98,33 @@ public class HomeActivity extends AppCompatActivity {
 
     private void performLogout() {
         try {
-            new AsyncTask<Void, Void, Void>() {
-                @Override
-                protected Void doInBackground(Void... voids) {
-                    dbHelper.logout();
-                    return null;
-                }
-
-                @Override
-                protected void onPostExecute(Void aVoid) {
-                    Intent intent = new Intent(HomeActivity.this, MainActivity.class);
-                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                    startActivity(intent);
-                    finish();
-                }
-            }.execute();
+            dbHelper.logout();
+            Intent intent = new Intent(this, MainActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+            finish();
         } catch (Exception e) {
             e.printStackTrace();
             Intent intent = new Intent(this, MainActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(intent);
             finish();
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (!dbHelper.isLoggedIn()) {
+            performLogout();
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (dbHelper != null) {
+            AppDatabase.destroyInstance();
         }
     }
 }

@@ -2,9 +2,12 @@ package com.example.passwordmanagerv2.data;
 
 import android.content.Context;
 
+import androidx.annotation.NonNull;
 import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
+import androidx.room.migration.Migration;
+import androidx.sqlite.db.SupportSQLiteDatabase;
 
 import com.example.passwordmanagerv2.data.dao.PasswordDao;
 import com.example.passwordmanagerv2.data.dao.UserDao;
@@ -13,7 +16,7 @@ import com.example.passwordmanagerv2.data.entity.User;
 
 @Database(
         entities = {User.class, SavedPassword.class},
-        version = 1,
+        version = 2,
         exportSchema = false
 )
 public abstract class AppDatabase extends RoomDatabase {
@@ -32,6 +35,7 @@ public abstract class AppDatabase extends RoomDatabase {
                                     context.getApplicationContext(),
                                     AppDatabase.class,
                                     DATABASE_NAME)
+                            .addMigrations(MIGRATION_1_2)
                             .fallbackToDestructiveMigration()
                             .build();
                 }
@@ -39,6 +43,13 @@ public abstract class AppDatabase extends RoomDatabase {
         }
         return instance;
     }
+
+    private static final Migration MIGRATION_1_2 = new Migration(1, 2) {
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase database) {
+            database.execSQL("ALTER TABLE saved_passwords ADD COLUMN is_archived INTEGER NOT NULL DEFAULT 0");
+        }
+    };
 
     public void close() {
         if (instance != null) {
@@ -53,5 +64,9 @@ public abstract class AppDatabase extends RoomDatabase {
 
     public static void destroyInstance() {
         instance = null;
+    }
+
+    public boolean isOpen() {
+        return instance != null && instance.getOpenHelper().getWritableDatabase().isOpen();
     }
 }

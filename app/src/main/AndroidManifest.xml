@@ -75,6 +75,12 @@
             android:label="@string/saved_passwords"
             android:parentActivityName=".HomeActivity" />
 
+        <activity
+            android:name=".PasswordHistoryActivity"
+            android:label="Istoric parole"
+            android:parentActivityName=".HomeActivity" />
+
+
         <receiver
             android:name=".service.PasswordNotificationService"
             android:enabled="true"

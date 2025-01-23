@@ -44,4 +44,10 @@ public interface PasswordDao {
 
     @Query("SELECT * FROM saved_passwords WHERE userId = :userId AND updatedAt >= :timestamp")
     List<SavedPassword> getPasswordsUpdatedAfter(int userId, long timestamp);
+
+    @Query("SELECT * FROM saved_passwords WHERE userId = :userId AND is_archived = 1 ORDER BY updatedAt DESC")
+    List<SavedPassword> getArchivedPasswords(int userId);
+
+    @Query("SELECT * FROM saved_passwords WHERE userId = :userId AND is_archived = 0 ORDER BY updatedAt DESC")
+    List<SavedPassword> getActivePasswords(int userId);
 }

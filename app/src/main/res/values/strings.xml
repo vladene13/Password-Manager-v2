@@ -61,4 +61,9 @@
     <string name="password_saved">Password saved successfully</string>
     <string name="error_saving_password">Error saving password</string>
 
+    <string name="no_archived_passwords">Nu există parole arhivate</string>
+    <string name="archive_password">Arhivează parola</string>
+    <string name="delete_permanently">Șterge definitiv</string>
+    <string name="password_archived">Parola a fost arhivată</string>
+
 </resources>

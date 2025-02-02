@@ -1,9 +1,14 @@
 package com.example.passwordmanagerv2;
 
+import android.animation.ObjectAnimator;
+import android.animation.ValueAnimator;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.View;
+import android.view.animation.AccelerateDecelerateInterpolator;
+import android.view.animation.LinearInterpolator;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -34,6 +39,24 @@ public class EditPasswordActivity extends AppCompatActivity {
         initializeViews();
         setupToolbar();
         loadPassword();
+        setupAnimations();
+    }
+    private void setupAnimations() {
+        // Animație fundal circuit
+        View circuitBackground = findViewById(R.id.circuitBackground);
+        ObjectAnimator rotationAnimator = ObjectAnimator.ofFloat(circuitBackground, "rotation", 0f, 360f);
+        rotationAnimator.setDuration(5000);
+        rotationAnimator.setRepeatCount(ValueAnimator.INFINITE);
+        rotationAnimator.setInterpolator(new LinearInterpolator());
+        rotationAnimator.start();
+
+        // Efect glitch overlay
+        View glitchOverlay = findViewById(R.id.glitchOverlay);
+        ObjectAnimator alphaAnimator = ObjectAnimator.ofFloat(glitchOverlay, "alpha", 0.1f, 0.3f, 0.1f);
+        alphaAnimator.setDuration(2000);
+        alphaAnimator.setRepeatCount(ValueAnimator.INFINITE);
+        alphaAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
+        alphaAnimator.start();
     }
 
     private void initializeViews() {

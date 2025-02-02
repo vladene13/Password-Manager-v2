@@ -50,13 +50,15 @@
     <string name="error_field_required">This field is required</string>
 
     <string name="saved_passwords">Saved Passwords</string>
-
+    <string name="no_wifi_passwords">No WiFi passwords saved</string>
 
     <string name="edit_password">Editare parolă</string>
     <string name="delete_password">Ștergere parolă</string>
     <string name="password_deleted">Parola a fost ștearsă</string>
     <string name="error_deleting_password">Eroare la ștergerea parolei</string>
 
+    <string name="view_wifi_passwords">View WiFi Passwords</string>
+    <string name="wifi_passwords">WiFi Passwords</string>
     <string name="error_generate_password">Please generate a password first</string>
     <string name="password_saved">Password saved successfully</string>
     <string name="error_saving_password">Error saving password</string>
@@ -65,5 +67,6 @@
     <string name="archive_password">Arhivează parola</string>
     <string name="delete_permanently">Șterge definitiv</string>
     <string name="password_archived">Parola a fost arhivată</string>
+    <string name="add_wifi_password">Add WiFi Password</string>
 
 </resources>

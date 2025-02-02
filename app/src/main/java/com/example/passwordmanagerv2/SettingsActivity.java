@@ -1,30 +1,87 @@
 package com.example.passwordmanagerv2;
 
+import android.animation.ObjectAnimator;
+import android.animation.ValueAnimator;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.view.View;
+import android.view.animation.AccelerateDecelerateInterpolator;
+import android.view.animation.LinearInterpolator;
 import android.widget.Toast;
+
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.Toolbar;
 
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.google.android.material.textfield.TextInputEditText;
 
 public class SettingsActivity extends AppCompatActivity {
     private TextInputEditText currentPinInput, newPinInput, confirmPinInput;
     private DatabaseHelper dbHelper;
+    private BiometricHelper biometricHelper;
+    private SwitchMaterial biometricSwitch, darkModeSwitch;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
 
+        dbHelper = new DatabaseHelper(this);
+        biometricHelper = new BiometricHelper(this, null);
+
         initializeViews();
         setupToolbar();
-
-        dbHelper = new DatabaseHelper(this);
+        setupAnimations();
+        setupSwitches();
 
         MaterialButton changePinButton = findViewById(R.id.changePinButton);
         changePinButton.setOnClickListener(v -> attemptChangePin());
+    }
+
+    private void setupSwitches() {
+        biometricSwitch = findViewById(R.id.biometricSwitch);
+        //darkModeSwitch = findViewById(R.id.darkModeSwitch);
+
+        // Configurare switch biometrică
+        biometricSwitch.setChecked(biometricHelper.isBiometricEnabled());
+        biometricSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            biometricHelper.setBiometricEnabled(isChecked);
+            Toast.makeText(this,
+                    isChecked ? "Autentificare biometrică activată" : "Autentificare biometrică dezactivată",
+                    Toast.LENGTH_SHORT).show();
+        });
+
+
+    }
+
+//    private boolean isDarkModeEnabled() {
+//        return getSharedPreferences("AppSettings", MODE_PRIVATE)
+//                .getBoolean("dark_mode_enabled", false);
+//    }
+//
+//    private void setDarkModeEnabled(boolean enabled) {
+//        getSharedPreferences("AppSettings", MODE_PRIVATE)
+//                .edit()
+//                .putBoolean("dark_mode_enabled", enabled)
+//                .apply();
+//    }
+
+    private void setupAnimations() {
+        View circuitBackground = findViewById(R.id.circuitBackground);
+        ObjectAnimator rotationAnimator = ObjectAnimator.ofFloat(circuitBackground, "rotation", 0f, 360f);
+        rotationAnimator.setDuration(5000);
+        rotationAnimator.setRepeatCount(ValueAnimator.INFINITE);
+        rotationAnimator.setInterpolator(new LinearInterpolator());
+        rotationAnimator.start();
+
+        View glitchOverlay = findViewById(R.id.glitchOverlay);
+        ObjectAnimator alphaAnimator = ObjectAnimator.ofFloat(glitchOverlay, "alpha", 0.1f, 0.3f, 0.1f);
+        alphaAnimator.setDuration(2000);
+        alphaAnimator.setRepeatCount(ValueAnimator.INFINITE);
+        alphaAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
+        alphaAnimator.start();
     }
 
     private void initializeViews() {

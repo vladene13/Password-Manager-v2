@@ -1,94 +1,154 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.motion.widget.MotionLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fillViewport="true">
+    android:background="@drawable/cyberpunk_animated_background"
+    app:layoutDescription="@xml/scene_settings">
 
-    <LinearLayout
+    <!-- Circuit Background Layer -->
+    <View
+        android:id="@+id/circuitBackground"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="16dp">
+        android:layout_height="match_parent"
+        android:background="@drawable/circuit_flow_background"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"/>
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/change_pin"
-            android:textSize="20sp"
-            android:textStyle="bold"
-            android:layout_marginBottom="24dp"/>
+    <!-- Glitch Overlay -->
+    <View
+        android:id="@+id/glitchOverlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/glitch_overlay"
+        android:alpha="0.1"/>
 
-        <com.google.android.material.textfield.TextInputLayout
+    <ScrollView
+        android:id="@+id/scrollView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true">
+
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            android:minHeight="48dp"
-            app:passwordToggleEnabled="true"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+            android:orientation="vertical"
+            android:padding="16dp"
+            android:background="@drawable/terminal_text_background">
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/currentPinInput"
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/change_pin"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:textColor="@color/neon_cyan"
+                android:layout_marginBottom="24dp"/>
+
+            <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/current_pin"
-                android:inputType="numberPassword"
-                android:maxLength="4"
-                android:minHeight="48dp"
-                tools:ignore="TextContrastCheck,VisualLintTextFieldSize" />
+                android:layout_marginBottom="16dp"
+                android:background="@drawable/cyberpunk_input_background"
+                android:minHeight="64dp"
+                app:boxStrokeWidth="0dp"
+                app:boxStrokeColor="@color/neon_green"
+                app:hintTextColor="@color/neon_cyan"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
-        </com.google.android.material.textfield.TextInputLayout>
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/currentPinInput"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/current_pin"
+                    android:inputType="numberPassword"
+                    android:maxLength="4"
+                    android:textColor="@color/primary_background"
+                    android:textColorHint="@color/neon_green"
+                    android:background="@android:color/transparent"
+                    android:minHeight="48dp"
+                    android:padding="12dp"/>
 
-        <com.google.android.material.textfield.TextInputLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            android:minHeight="48dp"
-            app:passwordToggleEnabled="true"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+            </com.google.android.material.textfield.TextInputLayout>
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/newPinInput"
+            <!-- Repetă pentru celelalte câmpuri de PIN cu aceași structură -->
+
+            <!-- PIN Nou -->
+
+
+            <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/new_pin"
-                android:inputType="numberPassword"
-                android:maxLength="4"
-                android:minHeight="48dp"
-                tools:ignore="TextContrastCheck,VisualLintTextFieldSize" />
+                android:layout_marginBottom="16dp"
+                android:background="@drawable/cyberpunk_input_background"
+                android:minHeight="64dp"
+                app:boxStrokeWidth="0dp"
+                app:boxStrokeColor="@color/neon_green"
+                app:hintTextColor="@color/neon_cyan"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
-        </com.google.android.material.textfield.TextInputLayout>
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/newPinInput"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/new_pin"
+                    android:inputType="numberPassword"
+                    android:maxLength="4"
+                    android:textColor="@color/primary_background"
+                    android:textColorHint="@color/neon_green"
+                    android:background="@android:color/transparent"
+                    android:minHeight="48dp"
+                    android:padding="12dp"/>
 
-        <com.google.android.material.textfield.TextInputLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="32dp"
-            android:minHeight="48dp"
-            app:passwordToggleEnabled="true"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/confirmPinInput"
+            </com.google.android.material.textfield.TextInputLayout>
+            <!-- Confirmare PIN Nou -->
+            <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/confirm_pin"
-                android:inputType="numberPassword"
-                android:maxLength="4"
+                android:layout_marginBottom="16dp"
+                android:background="@drawable/cyberpunk_input_background"
+                android:minHeight="64dp"
+                app:boxStrokeWidth="0dp"
+                app:boxStrokeColor="@color/neon_green"
+                app:hintTextColor="@color/neon_cyan"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/confirmPinInput"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/confirm_pin"
+                    android:inputType="numberPassword"
+                    android:maxLength="4"
+                    android:textColor="@color/primary_background"
+                    android:textColorHint="@color/neon_green"
+                    android:background="@android:color/transparent"
+                    android:minHeight="48dp"
+                    android:padding="12dp"/>
+
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/changePinButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:backgroundTint="@color/neon_magenta"
                 android:minHeight="48dp"
-                tools:ignore="TextContrastCheck,VisualLintTextFieldSize" />
+                android:text="@string/change_pin"
+                android:textColor="@android:color/white" />
 
-        </com.google.android.material.textfield.TextInputLayout>
+            <com.google.android.material.switchmaterial.SwitchMaterial
+                android:id="@+id/biometricSwitch"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Autentificare cu Amprentă"
+                android:textColor="@color/neon_green"
+                android:layout_marginBottom="16dp"/>
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/changePinButton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:minHeight="48dp"
-            android:text="@string/change_pin"
-            android:textColor="#212121"
-            tools:ignore="VisualLintButtonSize" />
 
-    </LinearLayout>
-
-</ScrollView>
+        </LinearLayout>
+    </ScrollView>
+</androidx.constraintlayout.motion.widget.MotionLayout>

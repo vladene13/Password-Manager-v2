@@ -5,6 +5,8 @@ import androidx.room.ForeignKey;
 import androidx.room.PrimaryKey;
 import androidx.room.ColumnInfo;
 
+import java.net.URL;
+
 @Entity(tableName = "saved_passwords",
         foreignKeys = @ForeignKey(
                 entity = User.class,
@@ -93,5 +95,18 @@ public class SavedPassword {
     public void setArchived(boolean archived) {
         isArchived = archived;
         this.updatedAt = System.currentTimeMillis();
+    }
+
+    public static String extractDomain(String url) {
+        try {
+            String domain = url.toLowerCase();
+            if (!domain.startsWith("http")) {
+                domain = "https://" + domain;
+            }
+            URL urlObj = new URL(domain);
+            return urlObj.getHost();
+        } catch (Exception e) {
+            return url;
+        }
     }
 }

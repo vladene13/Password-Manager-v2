@@ -1,118 +1,171 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.motion.widget.MotionLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@drawable/cyberpunk_animated_background"
+    app:layoutDescription="@xml/scene_register">
 
-    <LinearLayout
+    <!-- Circuit Background Layer -->
+    <View
+        android:id="@+id/circuitBackground"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="16dp">
+        android:layout_height="match_parent"
+        android:background="@drawable/circuit_flow_background"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"/>
 
-        <com.google.android.material.textfield.TextInputLayout
+    <!-- Glitch Overlay -->
+    <View
+        android:id="@+id/glitchOverlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/glitch_overlay"
+        android:alpha="0.1"/>
+
+    <ScrollView
+        android:id="@+id/scrollView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:fillViewport="true"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            android:minHeight="48dp"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+            android:orientation="vertical"
+            android:padding="16dp"
+            android:background="@drawable/terminal_text_background">
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/emailInput"
+            <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Email"
-                android:inputType="textEmailAddress"
-                android:minHeight="48dp"
-                android:textColorHint="#757575"
-                tools:ignore="HardcodedText,VisualLintTextFieldSize,TextContrastCheck" />
+                android:layout_marginBottom="16dp"
+                android:background="@drawable/cyberpunk_input_background"
+                android:minHeight="64dp"
+                app:boxStrokeWidth="0dp"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
-        </com.google.android.material.textfield.TextInputLayout>
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/emailInput"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Email"
+                    android:inputType="textEmailAddress"
+                    android:textColor="@color/primary_background"
+                    android:textColorHint="@color/neon_green"
+                    android:background="@android:color/transparent"
+                    android:padding="12dp"
+                    tools:ignore="HardcodedText"/>
 
-        <com.google.android.material.textfield.TextInputLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            android:minHeight="48dp"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+            </com.google.android.material.textfield.TextInputLayout>
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/firstNameInput"
+            <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Nume"
-                android:inputType="textPersonName"
-                android:minHeight="48dp"
-                android:textColorHint="#757575"
-                tools:ignore="HardcodedText,TextContrastCheck,VisualLintTextFieldSize" />
+                android:layout_marginBottom="16dp"
+                android:background="@drawable/cyberpunk_input_background"
+                android:minHeight="64dp"
+                app:boxStrokeWidth="0dp"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
-        </com.google.android.material.textfield.TextInputLayout>
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/firstNameInput"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Nume"
+                    android:inputType="textPersonName"
+                    android:textColor="@color/primary_background"
+                    android:textColorHint="@color/neon_green"
+                    android:background="@android:color/transparent"
+                    android:padding="12dp"
+                    tools:ignore="HardcodedText"/>
 
-        <com.google.android.material.textfield.TextInputLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            android:minHeight="48dp"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+            </com.google.android.material.textfield.TextInputLayout>
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/lastNameInput"
+            <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Prenume"
-                android:inputType="textPersonName"
-                android:minHeight="48dp"
-                android:textColorHint="#757575"
-                tools:ignore="HardcodedText,VisualLintTextFieldSize,TextContrastCheck" />
+                android:layout_marginBottom="16dp"
+                android:background="@drawable/cyberpunk_input_background"
+                android:minHeight="64dp"
+                app:boxStrokeWidth="0dp"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
-        </com.google.android.material.textfield.TextInputLayout>
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/lastNameInput"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Prenume"
+                    android:inputType="textPersonName"
+                    android:textColor="@color/primary_background"
+                    android:textColorHint="@color/neon_green"
+                    android:background="@android:color/transparent"
+                    android:padding="12dp"
+                    tools:ignore="HardcodedText"/>
 
-        <com.google.android.material.textfield.TextInputLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            android:minHeight="48dp"
-            app:passwordToggleEnabled="true"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+            </com.google.android.material.textfield.TextInputLayout>
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/passwordInput"
+            <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Parolă"
-                android:inputType="textPassword"
-                android:minHeight="48dp"
-                tools:ignore="HardcodedText,VisualLintTextFieldSize,TextContrastCheck" />
+                android:layout_marginBottom="16dp"
+                android:background="@drawable/cyberpunk_input_background"
+                android:minHeight="64dp"
+                app:boxStrokeWidth="0dp"
+                app:passwordToggleEnabled="true"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
-        </com.google.android.material.textfield.TextInputLayout>
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/passwordInput"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Parolă"
+                    android:inputType="textPassword"
+                    android:textColor="@color/primary_background"
+                    android:textColorHint="@color/neon_green"
+                    android:background="@android:color/transparent"
+                    android:padding="12dp"
+                    tools:ignore="HardcodedText"/>
 
-        <com.google.android.material.textfield.TextInputLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="32dp"
-            android:minHeight="48dp"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+            </com.google.android.material.textfield.TextInputLayout>
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/pinInput"
+            <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="PIN (4 cifre)"
-                android:inputType="numberPassword"
-                android:maxLength="4"
-                android:minHeight="48dp"
-                android:textColorHint="#757575"
-                tools:ignore="HardcodedText,TextContrastCheck,VisualLintTextFieldSize" />
+                android:layout_marginBottom="32dp"
+                android:background="@drawable/cyberpunk_input_background"
+                android:minHeight="64dp"
+                app:boxStrokeWidth="0dp"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
-        </com.google.android.material.textfield.TextInputLayout>
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/pinInput"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="PIN (4 cifre)"
+                    android:inputType="numberPassword"
+                    android:maxLength="4"
+                    android:textColor="@color/primary_background"
+                    android:textColorHint="@color/neon_green"
+                    android:background="@android:color/transparent"
+                    android:padding="12dp"
+                    tools:ignore="HardcodedText"/>
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/registerButton"
-            android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:text="Înregistrare"
-            tools:ignore="HardcodedText,TextContrastCheck,VisualLintButtonSize" />
+            </com.google.android.material.textfield.TextInputLayout>
 
-    </LinearLayout>
-</ScrollView>
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/registerButton"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:text="Înregistrare"
+                android:backgroundTint="@color/neon_magenta"
+                android:textColor="@android:color/white"
+                tools:ignore="HardcodedText"/>
+
+        </LinearLayout>
+    </ScrollView>
+</androidx.constraintlayout.motion.widget.MotionLayout>

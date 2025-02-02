@@ -1,8 +1,13 @@
 package com.example.passwordmanagerv2;
 
+import android.animation.ObjectAnimator;
+import android.animation.ValueAnimator;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.view.View;
+import android.view.animation.AccelerateDecelerateInterpolator;
+import android.view.animation.LinearInterpolator;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -22,10 +27,29 @@ public class RegisterActivity extends AppCompatActivity {
         setContentView(R.layout.activity_register);
 
         initializeViews();
+        setupAnimations();
         dbHelper = new DatabaseHelper(this);
 
         MaterialButton registerButton = findViewById(R.id.registerButton);
         registerButton.setOnClickListener(v -> attemptRegister());
+    }
+
+    private void setupAnimations() {
+        // Animație fundal circuit
+        View circuitBackground = findViewById(R.id.circuitBackground);
+        ObjectAnimator rotationAnimator = ObjectAnimator.ofFloat(circuitBackground, "rotation", 0f, 360f);
+        rotationAnimator.setDuration(5000);
+        rotationAnimator.setRepeatCount(ValueAnimator.INFINITE);
+        rotationAnimator.setInterpolator(new LinearInterpolator());
+        rotationAnimator.start();
+
+        // Efect glitch overlay
+        View glitchOverlay = findViewById(R.id.glitchOverlay);
+        ObjectAnimator alphaAnimator = ObjectAnimator.ofFloat(glitchOverlay, "alpha", 0.1f, 0.3f, 0.1f);
+        alphaAnimator.setDuration(2000);
+        alphaAnimator.setRepeatCount(ValueAnimator.INFINITE);
+        alphaAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
+        alphaAnimator.start();
     }
 
     private void initializeViews() {

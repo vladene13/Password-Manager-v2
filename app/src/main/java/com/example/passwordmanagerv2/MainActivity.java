@@ -1,36 +1,47 @@
 package com.example.passwordmanagerv2;
 
 import android.Manifest;
+import android.animation.ObjectAnimator;
+import android.animation.ValueAnimator;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.view.View;
+import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
+import android.view.animation.LinearInterpolator;
 import android.widget.ImageView;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.example.passwordmanagerv2.data.AppDatabase;
 import com.example.passwordmanagerv2.service.PasswordNotificationService;
+import com.example.passwordmanagerv2.wifi.WifiConnectionReceiver;
 import com.google.android.material.button.MaterialButton;
 
 public class MainActivity extends AppCompatActivity {
     private DatabaseHelper dbHelper;
     private static final int NOTIFICATION_PERMISSION_CODE = 123;
+    private static final int WIFI_PERMISSION_CODE = 124;
     private ImageView logoImage;
     private MaterialButton loginButton, registerButton;
+    private WifiConnectionReceiver wifiReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
 
-        // Inițializare DatabaseHelper
         dbHelper = new DatabaseHelper(this);
 
-        // Verifică dacă utilizatorul este deja autentificat
         if (dbHelper.isLoggedIn()) {
             startActivity(new Intent(this, PinActivity.class));
             finish();
@@ -41,9 +52,29 @@ public class MainActivity extends AppCompatActivity {
         initializeViews();
         setupListeners();
         startLogoAnimation();
-        requestNotificationPermission();
+        requestPermissions();
         setupNotificationService();
+        setupWifiReceiver();
+        setupAnimations();
     }
+    private void setupAnimations() {
+        // Animație fundal circuit
+        View circuitBackground = findViewById(R.id.circuitBackground);
+        ObjectAnimator rotationAnimator = ObjectAnimator.ofFloat(circuitBackground, "rotation", 0f, 360f);
+        rotationAnimator.setDuration(5000);
+        rotationAnimator.setRepeatCount(ValueAnimator.INFINITE);
+        rotationAnimator.setInterpolator(new LinearInterpolator());
+        rotationAnimator.start();
+
+        // Efect glitch overlay
+        View glitchOverlay = findViewById(R.id.glitchOverlay);
+        ObjectAnimator alphaAnimator = ObjectAnimator.ofFloat(glitchOverlay, "alpha", 0.1f, 0.3f, 0.1f);
+        alphaAnimator.setDuration(2000);
+        alphaAnimator.setRepeatCount(ValueAnimator.INFINITE);
+        alphaAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
+        alphaAnimator.start();
+    }
+
 
     private void initializeViews() {
         logoImage = findViewById(R.id.logoImage);
@@ -74,7 +105,6 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onAnimationEnd(Animation animation) {
-                // Activează butoanele după ce animația s-a terminat
                 loginButton.setEnabled(true);
                 registerButton.setEnabled(true);
             }
@@ -83,19 +113,22 @@ public class MainActivity extends AppCompatActivity {
             public void onAnimationRepeat(Animation animation) {}
         });
 
-        // Dezactivează butoanele în timpul animației
         loginButton.setEnabled(false);
         registerButton.setEnabled(false);
 
         logoImage.startAnimation(fadeIn);
     }
 
-    private void requestNotificationPermission() {
+    private void requestPermissions() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (ContextCompat.checkSelfPermission(this,
                     Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
                 ActivityCompat.requestPermissions(this,
-                        new String[]{Manifest.permission.POST_NOTIFICATIONS},
+                        new String[]{
+                                Manifest.permission.POST_NOTIFICATIONS,
+                                Manifest.permission.ACCESS_WIFI_STATE,
+                                Manifest.permission.ACCESS_NETWORK_STATE
+                        },
                         NOTIFICATION_PERMISSION_CODE);
             }
         }
@@ -105,11 +138,16 @@ public class MainActivity extends AppCompatActivity {
         PasswordNotificationService.scheduleNotifications(this);
     }
 
+    private void setupWifiReceiver() {
+        wifiReceiver = new WifiConnectionReceiver();
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(WifiManager.NETWORK_STATE_CHANGED_ACTION);
+        registerReceiver(wifiReceiver, intentFilter);
+    }
+
     @Override
     protected void onResume() {
         super.onResume();
-        // Verifică din nou starea de autentificare în cazul în care utilizatorul
-        // se întoarce din alte activități
         if (dbHelper != null && dbHelper.isLoggedIn()) {
             startActivity(new Intent(this, PinActivity.class));
             finish();
@@ -124,6 +162,7 @@ public class MainActivity extends AppCompatActivity {
             if (grantResults.length > 0 &&
                     grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 setupNotificationService();
+                setupWifiReceiver();
             }
         }
     }
@@ -131,6 +170,9 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        if (wifiReceiver != null) {
+            wifiReceiver.stopReceiver(this);
+        }
         if (dbHelper != null) {
             AppDatabase.destroyInstance();
         }

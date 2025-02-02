@@ -3,6 +3,7 @@ package com.example.passwordmanagerv2;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Base64;
+import android.util.Log;
 
 import androidx.security.crypto.EncryptedSharedPreferences;
 import androidx.security.crypto.MasterKey;
@@ -19,6 +20,7 @@ import javax.crypto.spec.SecretKeySpec;
 import com.example.passwordmanagerv2.data.AppDatabase;
 import com.example.passwordmanagerv2.data.entity.User;
 import com.example.passwordmanagerv2.data.entity.SavedPassword;
+import com.example.passwordmanagerv2.data.entity.wifi.WiFiPassword;
 
 public class DatabaseHelper {
     private final AppDatabase db;
@@ -161,10 +163,11 @@ public class DatabaseHelper {
 
     public boolean savePassword(String siteName, String username, String password) {
         try {
+            String domain = SavedPassword.extractDomain(siteName);
             String encryptedPassword = encryptPassword(password);
             SavedPassword savedPassword = new SavedPassword(
                     getCurrentUserId(),
-                    siteName,
+                    domain,
                     username,
                     encryptedPassword
             );
@@ -310,6 +313,23 @@ public class DatabaseHelper {
                 return db.userDao().findById(userId);
             }
             return null;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+    public void saveWiFiPassword(WiFiPassword wifiPassword) {
+        try {
+            long id = db.wifiPasswordDao().insert(wifiPassword);
+            Log.d("DatabaseHelper", "WiFi password saved with id: " + id);
+        } catch (Exception e) {
+            Log.e("DatabaseHelper", "Error saving WiFi password", e);
+        }
+    }
+
+    public List<WiFiPassword> getWiFiPasswords() {
+        try {
+            return db.wifiPasswordDao().getAll();
         } catch (Exception e) {
             e.printStackTrace();
             return null;

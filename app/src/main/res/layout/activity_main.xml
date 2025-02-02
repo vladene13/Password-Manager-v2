@@ -1,19 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
+<androidx.constraintlayout.motion.widget.MotionLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white"
-    android:theme="@style/Theme.PasswordManagerv2">
+    android:background="@drawable/cyberpunk_animated_background"
+    app:layoutDescription="@xml/scene_main">
+
+    <!-- Circuit Background Layer -->
+    <View
+        android:id="@+id/circuitBackground"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/circuit_flow_background"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"/>
+
+    <!-- Glitch Overlay -->
+    <View
+        android:id="@+id/glitchOverlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/glitch_overlay"
+        android:alpha="0.1"/>
 
     <LinearLayout
+        android:id="@+id/containerLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:gravity="center"
         android:padding="16dp"
+        android:background="@drawable/terminal_text_background"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent">
 
@@ -31,7 +50,8 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
             android:text="@string/login"
-            android:textColor="#212121"
+            android:backgroundTint="@color/primary"
+            android:textColor="@android:color/white"
             tools:ignore="VisualLintButtonSize" />
 
         <com.google.android.material.button.MaterialButton
@@ -39,9 +59,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/register"
-            android:textColor="#212121"
+            android:backgroundTint="@color/primary"
+            android:textColor="@android:color/white"
             tools:ignore="VisualLintButtonSize" />
 
     </LinearLayout>
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.constraintlayout.motion.widget.MotionLayout>

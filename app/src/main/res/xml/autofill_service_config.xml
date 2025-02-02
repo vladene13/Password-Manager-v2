@@ -1,0 +1,5 @@
+<autofill-service xmlns:android="http://schemas.android.com/apk/res/android">
+    <compatibility-package
+        android:name="com.sec.android.app.sbrowser"
+        android:maxLongVersionCode="999999999999999" />
+</autofill-service>
